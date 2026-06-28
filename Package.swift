@@ -1,5 +1,19 @@
 // swift-tools-version:6.1
+import Foundation
 import PackageDescription
+
+let manifestDirectoryURL = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+
+func localOrForkDependency(_ repository: String, localPath: String) -> Package.Dependency {
+    let resolvedLocalPath = URL(fileURLWithPath: localPath, relativeTo: manifestDirectoryURL)
+        .standardizedFileURL
+        .path
+    if FileManager.default.fileExists(atPath: resolvedLocalPath) {
+        return .package(path: resolvedLocalPath)
+    }
+
+    return .package(url: "https://github.com/1amageek/\(repository).git", branch: "main")
+}
 
 let package = Package(
     name: "swift-service-lifecycle",
@@ -18,14 +32,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(
-            url: "https://github.com/apple/swift-log.git",
-            from: "1.5.2"
-        ),
-        .package(
-            url: "https://github.com/apple/swift-async-algorithms.git",
-            from: "1.1.3"
-        ),
+        localOrForkDependency("swift-log", localPath: "../swift-log"),
+        localOrForkDependency("swift-async-algorithms", localPath: "../swift-async-algorithms"),
     ],
     targets: [
         .target(
