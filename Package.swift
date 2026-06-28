@@ -1,22 +1,5 @@
 // swift-tools-version:6.1
-import Foundation
 import PackageDescription
-
-let manifestDirectoryURL = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
-let manifestPath = manifestDirectoryURL.standardizedFileURL.path
-let isDependencyCheckout = manifestPath.contains("/.build/checkouts/")
-    || manifestPath.contains("/SourcePackages/checkouts/")
-
-func localOrForkDependency(_ repository: String, localPath: String) -> Package.Dependency {
-    let resolvedLocalPath = URL(fileURLWithPath: localPath, relativeTo: manifestDirectoryURL)
-        .standardizedFileURL
-        .path
-    if !isDependencyCheckout && FileManager.default.fileExists(atPath: resolvedLocalPath) {
-        return .package(path: resolvedLocalPath)
-    }
-
-    return .package(url: "https://github.com/1amageek/\(repository).git", branch: "main")
-}
 
 let package = Package(
     name: "swift-service-lifecycle",
@@ -35,8 +18,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        localOrForkDependency("swift-log", localPath: "../swift-log"),
-        localOrForkDependency("swift-async-algorithms", localPath: "../swift-async-algorithms"),
+        .package(url: "https://github.com/1amageek/swift-log.git", branch: "main"),
+        .package(url: "https://github.com/1amageek/swift-async-algorithms.git", branch: "main"),
     ],
     targets: [
         .target(
